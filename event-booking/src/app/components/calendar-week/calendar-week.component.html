@@ -1,0 +1,42 @@
+<div class="calendar-container">
+  <nav class="navbar">
+    <h1>Event Booking Calendar</h1>
+    <div class="nav-buttons">
+      <button (click)="goToPreferences()" class="btn btn-nav">Preferences</button>
+      <button (click)="goToAdmin()" class="btn btn-nav">Admin</button>
+    </div>
+  </nav>
+
+  <div class="controls-card">
+    <div class="controls">
+      <button (click)="prevWeek()" class="btn">← Prev</button>
+      <span class="week-display">Week of {{displayWeekStart | date:'mediumDate'}}</span>
+      <button (click)="nextWeek()" class="btn">Next →</button>
+      
+      <div class="filter-group">
+        <label>Filter Category:</label>
+        <select (change)="onCategoryFilterChange($event)">
+          <option [value]="null">All</option>
+          <option *ngFor="let c of cats" [value]="c.id">{{c.name}}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="week-grid">
+    <div *ngFor="let day of days" class="day-column">
+      <h3>{{day | date:'EEEE, MMM d'}}</h3>
+      <div class="timeslots">
+        <app-timeslot-card 
+          *ngFor="let ts of timeslotsByDay[day.toDateString()]" 
+          [ts]="ts" 
+          (signup)="signup($event)" 
+          (unsubscribe)="unsubscribe($event)">
+        </app-timeslot-card>
+        <div *ngIf="!(timeslotsByDay[day.toDateString()]?.length)" class="no-slots">
+          No slots
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
