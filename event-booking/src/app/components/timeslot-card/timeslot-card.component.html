@@ -1,0 +1,22 @@
+<div class="timeslot-card" [ngClass]="{'booked': isBooked()}">
+  <div class="time">{{ts.start_dt | date:'shortTime'}} - {{ts.end_dt | date:'shortTime'}}</div>
+  <div class="status" *ngIf="isBooked()">
+    <span class="booked-label">Booked</span>
+  </div>
+  <div class="actions">
+    <button 
+      (click)="onSignup()" 
+      [disabled]="isBooked()"
+      class="btn btn-signup"
+    >
+      Sign up
+    </button>
+    <button 
+      *ngIf="isMyBooking()"
+      (click)="onUnsub()"
+      class="btn btn-unsubscribe"
+    >
+      Unsubscribe
+    </button>
+  </div>
+</div>

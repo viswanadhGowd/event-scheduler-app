@@ -1,0 +1,62 @@
+<div class="admin-container">
+  <div class="form-card">
+    <h2>Add New Time Slot</h2>
+    <form [formGroup]="form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category</label>
+          <select formControlName="category_id">
+            <option value="">Select a category</option>
+            <option *ngFor="let cat of categories" [value]="cat.id">
+              {{ cat.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Start Date/Time</label>
+          <input type="datetime-local" formControlName="start_dt" />
+        </div>
+
+        <div class="form-group">
+          <label>End Date/Time</label>
+          <input type="datetime-local" formControlName="end_dt" />
+        </div>
+      </div>
+      <button type="button" (click)="addTimeslot()" class="btn btn-primary">
+        Add Slot
+      </button>
+    </form>
+  </div>
+
+  <div class="table-card">
+    <h2>All Time Slots</h2>
+    <table class="timeslots-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Category</th>
+          <th>Booked By</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ts of timeslots">
+          <td>{{ ts.id }}</td>
+          <td>{{ ts.start_dt | date: 'short' }}</td>
+          <td>{{ ts.end_dt | date: 'short' }}</td>
+          <td>{{ getCategoryName(ts.category_id) }}</td>
+          <td>{{ ts.booked_by ? 'User ' + ts.booked_by : 'Available' }}</td>
+          <td>
+            <button type="button" (click)="deleteTimeslot(ts.id)" class="btn btn-danger btn-small">
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="timeslots.length === 0" class="no-data">No timeslots found</div>
+  </div>
+</div>

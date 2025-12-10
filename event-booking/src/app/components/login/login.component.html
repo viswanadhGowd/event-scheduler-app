@@ -1,0 +1,24 @@
+<div class="login-container">
+  <div class="login-card">
+    <h2>Login</h2>
+
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+    <form (ngSubmit)="login()" #loginForm="ngForm">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input id="username" name="username" [(ngModel)]="username" placeholder="Your username" />
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="btn btn-primary" [disabled]="isLoading || !username.trim()">
+          {{ isLoading ? 'Logging in...' : 'Login' }}
+        </button>
+      </div>
+    </form>
+
+    <div class="signup-link">
+      <a routerLink="/signup">Create an account</a>
+    </div>
+  </div>
+</div>
