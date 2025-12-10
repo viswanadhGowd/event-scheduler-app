@@ -66,7 +66,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Run the server
-uvicorn main:app --reload --port 8000
+uvicorn app:app  --port 8000
 ```
 
 The backend API will be available at `http://localhost:8000`.
