@@ -44,7 +44,7 @@ class Booking(Base):
     timeslot_id = Column(Integer, ForeignKey("timeslots.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
-
+    
     timeslot = relationship("TimeSlot", back_populates="booking")
     user = relationship("User", back_populates="bookings")
 

@@ -2,6 +2,10 @@
   <div class="card">
     <div class="card-header">
       <h2>Event Category Preferences</h2>
+      <div class="user-info" *ngIf="currentUser">
+        <span class="username">User: {{ currentUser.username }}</span>
+        <button class="btn-logout" (click)="logout()">Logout</button>
+      </div>
     </div>
     <div class="card-content">
       <p>Select which event categories you're interested in:</p>

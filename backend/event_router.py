@@ -63,6 +63,15 @@ def create_user(u: schemas.UserCreate, db: Session = Depends(get_db)):
     return user
 
 
+@router.post("/login", response_model=schemas.UserOut)
+def login(u: schemas.UserCreate, db: Session = Depends(get_db)):
+    # Simple login by username (no password)
+    user = db.query(User).filter(User.username == u.username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="user not found")
+    return user
+
+
 @router.get("/categories/", response_model=list[schemas.CategoryOut])
 def list_categories(db: Session = Depends(get_db)):
     return db.query(Category).all()

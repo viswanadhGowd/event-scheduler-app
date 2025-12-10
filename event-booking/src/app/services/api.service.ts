@@ -24,8 +24,15 @@ export class ApiService {
   deleteBooking(bookingId: number) {
     return this.http.delete(`${this.base}/bookings/${bookingId}`);
   }
-  createUser(username: string) {
-    return this.http.post<User>(`${this.base}/users/`, { username });
+  createUser(username: string, email?: string) {
+    const payload: any = { username };
+    if (email) {
+      payload.email = email;
+    }
+    return this.http.post<User>(`${this.base}/users/`, payload);
+  }
+  login(username: string) {
+    return this.http.post<User>(`${this.base}/login`, { username });
   }
   setUserPreferences(payload: { user_id: number; category_ids: number[] }) {
     return this.http.post(`${this.base}/user-preferences/`, payload);

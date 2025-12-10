@@ -1,10 +1,12 @@
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { TimeSlot, Category } from '../../models/models';
 import { TimeslotCardComponent } from '../timeslot-card/timeslot-card.component';
 import { startOfWeek, addDays, addWeeks, subWeeks, formatISO } from 'date-fns';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-calendar-week',
@@ -14,21 +16,36 @@ import { Router } from '@angular/router';
   templateUrl: './calendar-week.component.html',
   styleUrls: ['./calendar-week.component.scss']
 })
-export class CalendarWeekComponent implements OnInit {
+export class CalendarWeekComponent implements OnInit, OnDestroy {
   displayWeekStart = startOfWeek(new Date(), {weekStartsOn:1});
   days: Date[] = [];
   timeslotsByDay: Record<string, TimeSlot[]> = {};
   cats: Category[] = [];
   selectedCategories: number[] = [];
   categoryFilter: number | null = null;
-  currentUserId = 1;
+  currentUserId: number | null = null;
+  private subscription: Subscription | null = null;
 
-  constructor(private api: ApiService, private router: Router) {}
+  constructor(private api: ApiService, private auth: AuthService, private router: Router) {
+    // Get user ID from AuthService
+    this.currentUserId = this.auth.getUserId();
+  }
 
   ngOnInit() {
+    // Subscribe to user changes to update currentUserId reactively
+    this.subscription = this.auth.currentUser$.subscribe(() => {
+      this.currentUserId = this.auth.getUserId();
+    });
+    
     this.buildDays();
     this.loadCategories();
     this.loadTimeslots();
+  }
+
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   buildDays() {
@@ -83,6 +100,11 @@ export class CalendarWeekComponent implements OnInit {
   }
 
   signup(ts: TimeSlot) {
+    if (!this.currentUserId) {
+      alert('Please sign up first');
+      this.router.navigate(['/signup']);
+      return;
+    }
     this.api.createBooking(ts.id, this.currentUserId).subscribe({
       next: ()=> this.loadTimeslots(),
       error: (err: any) => alert(err.error?.detail || 'Could not book')

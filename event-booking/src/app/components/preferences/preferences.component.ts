@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { Category } from '../../models/models';
 import { Router } from '@angular/router';
 
@@ -16,13 +17,22 @@ import { Router } from '@angular/router';
 export class PreferencesComponent implements OnInit {
   categories: Category[] = [];
   selected = new Set<number>();
-  currentUserId = 1; // TODO: Get from auth
+  currentUserId: number | null = null;
+  currentUser: any = null;
   isLoading = false;
   successMessage = '';
 
-  constructor(private api: ApiService, private router: Router) {}
+  constructor(private api: ApiService, private auth: AuthService, private router: Router) {
+    this.currentUser = this.auth.getUser();
+    this.currentUserId = this.auth.getUserId();
+  }
 
   ngOnInit() {
+    if (!this.currentUserId) {
+      // Redirect to signup if no user is logged in
+      this.router.navigate(['/signup']);
+      return;
+    }
     this.loadCategories();
     this.loadUserPreferences();
   }
@@ -34,6 +44,8 @@ export class PreferencesComponent implements OnInit {
   }
 
   loadUserPreferences() {
+    if (!this.currentUserId) return;
+    
     this.api.getUserPreferences(this.currentUserId).subscribe({
       next: (prefs: any) => {
         this.selected = new Set(prefs.category_ids);
@@ -54,6 +66,10 @@ export class PreferencesComponent implements OnInit {
   }
 
   savePreferences() {
+    if (!this.currentUserId) {
+      alert('User not authenticated');
+      return;
+    }
     this.isLoading = true;
     const payload = {
       user_id: this.currentUserId,
@@ -66,7 +82,7 @@ export class PreferencesComponent implements OnInit {
         this.isLoading = false;
         setTimeout(() => {
           this.successMessage = '';
-          this.router.navigate(['/']);
+          this.router.navigate(['/calander']);
         }, 2000);
       },
       error: (err: any) => {
@@ -77,6 +93,11 @@ export class PreferencesComponent implements OnInit {
   }
 
   goToCalendar() {
-    this.router.navigate(['/']);
+    this.router.navigate(['/calander']);
+  }
+
+  logout() {
+    this.auth.logout();
+    this.router.navigate(['/signup']);
   }
 }

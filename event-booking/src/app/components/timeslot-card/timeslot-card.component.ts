@@ -1,6 +1,8 @@
-import { Component, Input, Output, EventEmitter, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, Input, Output, EventEmitter, CUSTOM_ELEMENTS_SCHEMA, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TimeSlot } from '../../models/models';
+import { AuthService } from '../../services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-timeslot-card',
@@ -10,12 +12,31 @@ import { TimeSlot } from '../../models/models';
   templateUrl: './timeslot-card.component.html',
   styleUrls: ['./timeslot-card.component.scss']
 })
-export class TimeslotCardComponent {
+export class TimeslotCardComponent implements OnInit, OnDestroy {
   @Input() ts!: TimeSlot;
   @Output() signup = new EventEmitter<TimeSlot>();
   @Output() unsubscribe = new EventEmitter<number>();
-  currentUserId = 1; // demo
+  currentUserId: number | null = null;
+  private subscription: Subscription | null = null;
 
+  constructor(private auth: AuthService) {}
+
+  ngOnInit() {
+    this.currentUserId = this.auth.getUserId();
+    // Subscribe to user changes to update UI reactively
+    this.subscription = this.auth.currentUser$.subscribe(() => {
+      this.currentUserId = this.auth.getUserId();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
+
+
+  
   onSignup() {
     this.signup.emit(this.ts);
   }
